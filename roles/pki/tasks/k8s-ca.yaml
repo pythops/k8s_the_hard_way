@@ -1,0 +1,23 @@
+---
+- name: Generate k8s ca private key
+  openssl_privatekey:
+    path: '{{ k8s_pki_dir }}/k8s-ca.key'
+
+- name: Generate k8s ca csr
+  openssl_csr:
+    path: '{{ k8s_pki_dir }}/k8s-ca.csr'
+    privatekey_path: '{{ k8s_pki_dir }}/k8s-ca.key'
+    basic_constraints: "CA:TRUE"
+    basic_constraints_critical: true
+    key_usage:
+      - cRLSign
+      - keyCertSign
+    key_usage_critical: true
+    common_name: kubernetes-ca
+
+- name: Generate k8s ca certificate
+  openssl_certificate:
+    path: '{{ k8s_pki_dir }}/k8s-ca.crt'
+    privatekey_path: '{{ k8s_pki_dir }}/k8s-ca.key'
+    csr_path: '{{ k8s_pki_dir }}/k8s-ca.csr'
+    provider: selfsigned

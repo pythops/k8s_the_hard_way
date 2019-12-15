@@ -1,0 +1,45 @@
+---
+- name: Create pki directories
+  file:
+    path: '{{ item }}'
+    state: directory
+  loop:
+    - '{{ k8s_pki_dir }}'
+    - '{{ etcd_pki_dir }}'
+    - '{{ user_accounts_pki_dir }}'
+  tags:
+    - always
+
+- name: Etcd
+  include: etcd.yaml
+  tags:
+    - etcd
+
+- name: k8s CA
+  include: k8s-ca.yaml
+  tags:
+    - master
+    - k8s-ca
+
+- name: kube-apiserver
+  include: apiserver.yaml
+  tags:
+    - master
+    - kube-apiserver
+
+- name: kube-controller-manager
+  include: controller-manager.yaml
+  tags:
+    - master
+    - kube-controller-manager
+
+- name: kube-scheduler
+  include: scheduler.yaml
+  tags:
+    - master
+    - kube-scheduler
+
+- name: admin account
+  include: admin.yaml
+  tags:
+    - admin

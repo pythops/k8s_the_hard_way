@@ -1,0 +1,24 @@
+---
+- name: Generate scheduler private key
+  openssl_privatekey:
+    path: '{{ k8s_pki_dir }}/kube-scheduler.key'
+
+- name: Generate scheduler csr
+  openssl_csr:
+    path: '{{ k8s_pki_dir }}/kube-scheduler.csr'
+    privatekey_path: '{{ k8s_pki_dir }}/kube-scheduler.key'
+    common_name: 'system:kube-scheduler'
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage: clientAuth
+    organization_name: 'system:kube-scheduler'
+
+- name: Generate scheduler certificate
+  openssl_certificate:
+    path: '{{ k8s_pki_dir }}/kube-scheduler.crt'
+    csr_path: '{{ k8s_pki_dir }}/kube-scheduler.csr'
+    ownca_path: '{{ k8s_pki_dir }}/k8s-ca.crt'
+    ownca_privatekey_path: '{{ k8s_pki_dir }}/k8s-ca.key'
+    provider: ownca

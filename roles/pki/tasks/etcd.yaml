@@ -1,0 +1,118 @@
+---
+- name: Generate etcd CA private keys
+  openssl_privatekey:
+    path: '{{ etcd_pki_dir }}/{{ item }}.key'
+  loop:
+    - etcd-server-ca
+    - etcd-peer-ca
+
+- name: Generate etcd ca csr
+  openssl_csr:
+    path: '{{ etcd_pki_dir }}/{{ item }}.csr'
+    privatekey_path: '{{ etcd_pki_dir }}/{{ item }}.key'
+    basic_constraints: "CA:TRUE"
+    basic_constraints_critical: true
+    key_usage:
+      - cRLSign
+      - keyCertSign
+    key_usage_critical: true
+    common_name: '{{ item }}'
+  loop:
+    - etcd-server-ca
+    - etcd-peer-ca
+
+- name: Generate etcd ca certificates
+  openssl_certificate:
+    path: '{{ etcd_pki_dir }}/{{ item }}.crt'
+    privatekey_path: '{{ etcd_pki_dir }}/{{ item }}.key'
+    csr_path: '{{ etcd_pki_dir }}/{{ item }}.csr'
+    provider: selfsigned
+  loop:
+    - etcd-server-ca
+    - etcd-peer-ca
+
+- name: Generate etcd servers private keys
+  openssl_privatekey:
+    path: '{{ etcd_pki_dir }}/{{ item }}-server.key'
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3
+
+- name: Generate etcd servers csrs
+  openssl_csr:
+    path: "{{ etcd_pki_dir }}/{{ item }}-server.csr"
+    privatekey_path: "{{ etcd_pki_dir }}/{{ item }}-server.key"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage:
+      - serverAuth
+      - clientAuth
+    extended_key_usage_critical: true
+    common_name: "{{ item }}-server"
+    subject_alt_name:
+      - DNS:localhost
+      - DNS:{{ item }}
+      - IP:127.0.0.1
+      - IP:{{ hostvars[item]['ansible_host'] }}
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3
+
+- name: Generate etcd servers certificates
+  openssl_certificate:
+    path: "{{ etcd_pki_dir }}/{{ item }}-server.crt"
+    csr_path: "{{ etcd_pki_dir }}/{{ item }}-server.csr"
+    ownca_path: '{{ etcd_pki_dir }}/etcd-server-ca.crt'
+    ownca_privatekey_path: '{{ etcd_pki_dir }}/etcd-server-ca.key'
+    provider: ownca
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3
+
+- name: Generate etcd peers private keys
+  openssl_privatekey:
+    path: '{{ etcd_pki_dir }}/{{ item }}-peer.key'
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3
+
+- name: Generate etcd peers csrs
+  openssl_csr:
+    path: "{{ etcd_pki_dir }}/{{ item }}-peer.csr"
+    privatekey_path: "{{ etcd_pki_dir }}/{{ item }}-peer.key"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage:
+      - serverAuth
+      - clientAuth
+    extended_key_usage_critical: true
+    common_name: "{{ item }}-peer"
+    subject_alt_name:
+      - DNS:localhost
+      - DNS:{{ item }}
+      - IP:127.0.0.1
+      - IP:{{ hostvars[item]['ansible_host'] }}
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3
+
+- name: Generate etcd peers certificate
+  openssl_certificate:
+    path: '{{ etcd_pki_dir }}/{{ item }}-peer.crt'
+    csr_path: '{{ etcd_pki_dir }}/{{ item }}-peer.csr'
+    ownca_path: '{{ etcd_pki_dir }}/etcd-peer-ca.crt'
+    ownca_privatekey_path: '{{ etcd_pki_dir }}/etcd-peer-ca.key'
+    provider: ownca
+  loop:
+    - k8s-etcd-1
+    - k8s-etcd-2
+    - k8s-etcd-3

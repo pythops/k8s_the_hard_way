@@ -1,0 +1,99 @@
+---
+- name: Generate apiservers private keys
+  openssl_privatekey:
+    path: "{{ k8s_pki_dir }}/{{ item }}-apiserver.key"
+  loop:
+    - k8s-master-1
+    - k8s-master-2
+    - k8s-master-3
+
+- name: Generate apiserver csrs
+  openssl_csr:
+    path: "{{ k8s_pki_dir }}/{{ item }}-apiserver.csr"
+    privatekey_path: "{{ k8s_pki_dir }}/{{ item }}-apiserver.key"
+    common_name: "kube-apiserver"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage:
+      - serverAuth
+      - clientAuth
+    extended_key_usage_critical: true
+    organization_name: "system:apiservers"
+    subject_alt_name:
+      - DNS:kubernetes
+      - DNS:kubernetes.default
+      - DNS:kubernetes.default.svc
+      - DNS:kubernetes.default.svc.cluster,
+      - DNS:kubernetes.default.svc.cluster.local
+      - IP:127.0.0.1
+      - IP:{{ hostvars[item]['ansible_host'] }}
+      - IP:{{ APISERVER_SERVICE_IP }}
+      - IP:{{ hostvars['loadbalancer']['ansible_host'] }}
+  loop:
+    - k8s-master-1
+    - k8s-master-2
+    - k8s-master-3
+
+- name: Generate apiserver certificates
+  openssl_certificate:
+    path: "{{ k8s_pki_dir }}/{{ item }}-apiserver.crt"
+    csr_path: "{{ k8s_pki_dir }}/{{ item }}-apiserver.csr"
+    ownca_path: "{{ k8s_pki_dir }}/k8s-ca.crt"
+    ownca_privatekey_path: "{{ k8s_pki_dir }}/k8s-ca.key"
+    provider: ownca
+  loop:
+    - k8s-master-1
+    - k8s-master-2
+    - k8s-master-3
+
+- name: Generate apiserver kubelet client private key
+  openssl_privatekey:
+    path: "{{ k8s_pki_dir }}/apiserver-kubelet-client.key"
+
+- name: Generate api server kubelet client csr
+  openssl_csr:
+    path: "{{ k8s_pki_dir }}/apiserver-kubelet-client.csr"
+    privatekey_path: "{{ k8s_pki_dir }}/apiserver-kubelet-client.key"
+    common_name: apiserver-kubelet-client
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage: clientAuth
+    extended_key_usage_critical: true
+    organization_name: "system:masters"
+
+- name: Generate apiserver kubelet client certificate
+  openssl_certificate:
+    path: "{{ k8s_pki_dir }}/apiserver-kubelet-client.crt"
+    csr_path: "{{ k8s_pki_dir }}/apiserver-kubelet-client.csr"
+    ownca_path: "{{ k8s_pki_dir }}/k8s-ca.crt"
+    ownca_privatekey_path: "{{ k8s_pki_dir }}/k8s-ca.key"
+    provider: ownca
+
+- name: Generare kube apiserver etcd client private key
+  openssl_privatekey:
+    path: "{{ etcd_pki_dir }}/kube-apiserver-etcd-client.key"
+
+- name: Generare kube apiserver etcd client csrs
+  openssl_csr:
+    path: "{{ etcd_pki_dir }}/kube-apiserver-etcd-client.csr"
+    privatekey_path: "{{ etcd_pki_dir }}/kube-apiserver-etcd-client.key"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage: clientAuth
+    extended_key_usage_critical: true
+    organization_name: "system:masters"
+    common_name: kube-apiserver-etcd-client
+
+- name: Generate kube apiserver etcd client certificate
+  openssl_certificate:
+    path: "{{ etcd_pki_dir }}/kube-apiserver-etcd-client.crt"
+    csr_path: "{{ etcd_pki_dir }}/kube-apiserver-etcd-client.csr"
+    ownca_path: "{{ etcd_pki_dir }}/etcd-server-ca.crt"
+    ownca_privatekey_path: "{{ etcd_pki_dir }}/etcd-server-ca.key"
+    provider: ownca

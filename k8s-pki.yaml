@@ -1,0 +1,6 @@
+---
+- name: Create the PKI
+  hosts: localhost
+  connection: local
+  roles:
+    - pki
