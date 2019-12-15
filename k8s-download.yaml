@@ -1,0 +1,6 @@
+---
+- name: Download k8s binaries
+  hosts: localhost
+  connection: local
+  roles:
+    - k8s-download

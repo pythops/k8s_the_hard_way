@@ -1,0 +1,18 @@
+---
+- name: Create binary directory
+  file:
+    path: '{{ bin_dir }}'
+    state: directory
+
+- name: Download k8s binaries
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: 0664
+  loop:
+    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-apiserver"
+      dest: "{{ bin_dir }}/kube-apiserver"
+    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-controller-manager"
+      dest: "{{ bin_dir }}/kube-controller-manager"
+    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-scheduler"
+      dest: "{{ bin_dir }}/kube-scheduler"
