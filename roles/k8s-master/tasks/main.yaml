@@ -1,0 +1,144 @@
+---
+- name: Copy k8s binaries
+  copy:
+    src: "{{ item }}"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ bin_dir }}/kube-apiserver"
+    - "{{ bin_dir }}/kube-controller-manager"
+    - "{{ bin_dir }}/kube-scheduler"
+
+- name: Create kubernetes group
+  group:
+    name: kubernetes
+    system: true
+    state: present
+
+- name: Create kube-controller-manager user
+  user:
+    name: kube-controller-manager
+    system: true
+    group: kubernetes
+    create_home: false
+    state: present
+
+- name: Create config directory
+  file:
+    path: /etc/kubernetes
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy common certificates
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes/
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - '{{ k8s_pki_dir }}/k8s-ca.crt'
+    - '{{ k8s_pki_dir }}/k8s-ca.key'
+    - '{{ etcd_pki_dir }}/etcd-server-ca.crt'
+    - '{{ k8s_pki_dir }}/apiserver-kubelet-client.crt'
+    - '{{ k8s_pki_dir }}/apiserver-kubelet-client.key'
+    - '{{ k8s_pki_dir }}/service-account.crt'
+    - '{{ k8s_pki_dir }}/service-account.key'
+    - '{{ etcd_pki_dir }}/kube-apiserver-etcd-client.crt'
+    - '{{ etcd_pki_dir }}/kube-apiserver-etcd-client.key'
+
+- name: Copy controller-manager kubeconfig
+  copy:
+    src: "{{ kubeconfig_dir }}/kube-controller-manager.kubeconfig"
+    dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy kube scheduler kubeconfig
+  copy:
+    src: "{{ kubeconfig_dir }}/kube-scheduler.kubeconfig"
+    dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy ceritifcate and keys to apisever 1
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - '{{ k8s_pki_dir }}/k8s-master-1-apiserver.crt'
+    - '{{ k8s_pki_dir }}/k8s-master-1-apiserver.key'
+  when: inventory_hostname  == 'k8s-master-1'
+
+- name: Copy ceritifcate and keys to apisever 2
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - '{{ k8s_pki_dir }}/k8s-master-2-apiserver.crt'
+    - '{{ k8s_pki_dir }}/k8s-master-2-apiserver.key'
+  when: inventory_hostname  == 'k8s-master-2'
+
+- name: Copy ceritifcate and keys to apisever 3
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - '{{ k8s_pki_dir }}/k8s-master-3-apiserver.crt'
+    - '{{ k8s_pki_dir }}/k8s-master-3-apiserver.key'
+  when: inventory_hostname  == 'k8s-master-3'
+
+- name: Copy encryption-config.yaml
+  template:
+    src: etc/kubernetes/encryption-config.yaml
+    dest: /etc/kubernetes/encryption-config.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy apisever systemd unit file
+  template:
+    src: lib/systemd/system/kube-apiserver.service.j2
+    dest: /lib/systemd/system/kube-apiserver.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart kube-apiserver
+
+- name: Copy kube-controller-manager systemd unit file
+  template:
+    src: lib/systemd/system/kube-controller-manager.service.j2
+    dest: /lib/systemd/system/kube-controller-manager.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart kube-controller-manager
+
+- name: Copy kube-scheduluer systemd unit file
+  template:
+    src: lib/systemd/system/kube-scheduler.service.j2
+    dest: /lib/systemd/system/kube-scheduler.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart kube-scheduler
+
+- meta: flush_handlers

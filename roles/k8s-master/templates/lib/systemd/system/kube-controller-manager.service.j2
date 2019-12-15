@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://kubernetes.io/docs
+
+[Service]
+User=kube-controller-manager
+Group=kubernetes
+ExecStart=/usr/local/bin/kube-controller-manager \
+  --address=0.0.0.0 \
+  --cluster-cidr={{ pod_cidr }} \
+  --allocate-node-cidrs=true \
+  --cluster-name=kubernetes \
+  --cluster-signing-cert-file=/etc/kubernetes/k8s-ca.crt \
+  --cluster-signing-key-file=/etc/kubernetes/k8s-ca.key \
+  --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --leader-elect=true \
+  --root-ca-file=/etc/kubernetes/k8s-ca.crt \
+  --service-account-private-key-file=/etc/kubernetes/service-account.key \
+  --use-service-account-credentials=true \
+  --service-cluster-ip-range={{ cluster_ip_range }} \
+  --v=2
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
