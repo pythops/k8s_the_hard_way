@@ -1,0 +1,91 @@
+---
+- name: Download and extract Etcd archive
+  unarchive:
+    remote_src: yes
+    src: https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz
+    dest: /usr/local/bin/
+    exclude:
+      - Documentation
+      - README-etcdctl.md
+      - README.md
+      - READMEv2-etcdctl.md
+    extra_opts: "--strip-components=1"
+
+- name: Create config directory
+  file:
+    path: /etc/etcd
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create etcd user
+  user:
+    name: etcd
+    shell: /usr/sbin/nologin
+    comment: "etcd user"
+    createhome: false
+    system: true
+    state: present
+
+- name: Create /var/lib/etcd directory
+  file:
+    path: /var/lib/etcd
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: 0755
+
+- name: Copy ca certificates
+  copy:
+    src: "{{ etcd_pki_dir }}/{{ item }}"
+    dest: /etc/etcd
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - etcd-server-ca.crt
+    - etcd-peer-ca.crt
+
+- name: copy certificates and keys to k8s-etcd-1
+  copy:
+    src: "{{ item }}"
+    dest: /etc/etcd
+  loop:
+    - '{{ etcd_pki_dir }}/k8s-etcd-1-server.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-1-server.key'
+    - '{{ etcd_pki_dir }}/k8s-etcd-1-peer.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-1-peer.key'
+  when: inventory_hostname == 'k8s-etcd-1'
+
+- name: copy certificates and keys to k8s-etcd-2
+  copy:
+    src: "{{ item }}"
+    dest: /etc/etcd
+  loop:
+    - '{{ etcd_pki_dir }}/k8s-etcd-2-server.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-2-server.key'
+    - '{{ etcd_pki_dir }}/k8s-etcd-2-peer.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-2-peer.key'
+  when: inventory_hostname == 'k8s-etcd-2'
+
+- name: copy certificates and keys to k8s-etcd-3
+  copy:
+    src: "{{ item }}"
+    dest: /etc/etcd
+  loop:
+    - '{{ etcd_pki_dir }}/k8s-etcd-3-server.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-3-server.key'
+    - '{{ etcd_pki_dir }}/k8s-etcd-3-peer.crt'
+    - '{{ etcd_pki_dir }}/k8s-etcd-3-peer.key'
+  when: inventory_hostname == 'k8s-etcd-3'
+
+- name: Copy systemd unit file
+  template:
+    src: "lib/systemd/system/etcd.service.j2"
+    dest: "/lib/systemd/system/etcd.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart etcd

@@ -1,0 +1,42 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=etcd
+Documentation=https://github.com/etcd-io/etcd
+
+[Service]
+Type=notify
+User=etcd
+Group=etcd
+ExecStart=/usr/local/bin/etcd \
+  --name {{ inventory_hostname }} \
+  --cert-file=/etc/etcd/{{ inventory_hostname }}-server.crt \
+  --key-file=/etc/etcd/{{ inventory_hostname }}-server.key \
+  --peer-cert-file=/etc/etcd/{{ inventory_hostname }}-peer.crt \
+  --peer-key-file=/etc/etcd/{{ inventory_hostname }}-peer.key \
+  --trusted-ca-file=/etc/etcd/etcd-server-ca.crt \
+  --peer-trusted-ca-file=/etc/etcd/etcd-peer-ca.crt \
+  --peer-client-cert-auth \
+  --client-cert-auth \
+  --initial-advertise-peer-urls https://{{ hostvars[inventory_hostname]['ansible_host'] }}:2380 \
+  --listen-peer-urls https://{{ hostvars[inventory_hostname]['ansible_host'] }}:2380 \
+  --listen-client-urls https://{{ hostvars[inventory_hostname]['ansible_host'] }}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls https://{{ hostvars[inventory_hostname]['ansible_host'] }}:2379 \
+  --initial-cluster-token etcd-cluster \
+  --initial-cluster k8s-etcd-1=https://{{ hostvars['k8s-etcd-1']['ansible_host'] }}:2380,k8s-etcd-2=https://{{ hostvars['k8s-etcd-2']['ansible_host'] }}:2380,k8s-etcd-3=https://{{ hostvars['k8s-etcd-3']['ansible_host'] }}:2380 \
+  --initial-cluster-state new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+ProtectHome=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+
+
