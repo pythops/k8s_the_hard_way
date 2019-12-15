@@ -1,0 +1,11 @@
+loadbalancer ansible_host=10.0.0.100
+
+[etcd]
+k8s-etcd-1 ansible_host=10.0.0.101
+k8s-etcd-2 ansible_host=10.0.0.102
+k8s-etcd-3 ansible_host=10.0.0.103
+
+[master]
+k8s-master-1 ansible_host=10.0.0.101
+k8s-master-2 ansible_host=10.0.0.102
+k8s-master-3 ansible_host=10.0.0.103
