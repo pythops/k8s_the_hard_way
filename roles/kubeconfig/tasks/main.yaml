@@ -1,0 +1,26 @@
+---
+- name: Create kubeconfig directory
+  file:
+    path: '{{ kubeconfig_dir }}'
+    state: directory
+  tags:
+    - always
+
+- name: Generate kubeconfig files for k8s master
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - src: kube-scheduler.kubeconfig.j2
+      dest: "{{ kubeconfig_dir }}/kube-scheduler.kubeconfig"
+    - src: kube-controller-manager.kubeconfig.j2
+      dest: "{{ kubeconfig_dir }}/kube-controller-manager.kubeconfig"
+  tags:
+    - master
+
+- name: Generate kubeconfig file for the admin user
+  template:
+    src: admin.kubeconfig.j2
+    dest: "{{ kubeconfig_dir }}/admin.kubeconfig"
+  tags:
+    - admin
