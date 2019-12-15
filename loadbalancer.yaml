@@ -1,0 +1,7 @@
+---
+- name: Deploy loadbalancer
+  hosts: loadbalancer
+  remote_user: vagrant
+  become: yes
+  roles:
+    - loadbalancer
