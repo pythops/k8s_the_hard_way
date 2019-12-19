@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+clientConnection:
+  kubeconfig: "/etc/kubernetes/kube-proxy/kube-proxy.kubeconfig"
+mode: "iptables"
+clusterCIDR: "{{ pod_cidr }}"

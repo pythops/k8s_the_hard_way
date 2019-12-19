@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+  x509:
+    clientCAFile: "/etc/kubernetes/k8s-ca.crt"
+authorization:
+  mode: Webhook
+clusterDomain: "cluster.local"
+clusterDNS:
+  - "{{ cluster_dns_ip }}"
+podCIDR: "{{ pod_cidr }}"
+resolvConf: "/run/systemd/resolve/resolv.conf"
+runtimeRequestTimeout: "15m"
+tlsCertFile: "/etc/kubernetes/kubelet/{{ inventory_hostname }}.crt"
+tlsPrivateKeyFile: "/etc/kubernetes/kubelet/{{ inventory_hostname }}.key"

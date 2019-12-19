@@ -1,0 +1,115 @@
+---
+- name: Copy k8s node binaries
+  copy:
+    src: "{{ item }}"
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ bin_dir }}/kubelet"
+    - "{{ bin_dir }}/kube-proxy"
+
+- name: Install socat
+  apt:
+    name: socat
+    state: latest
+
+- name: Install conntrack
+  apt:
+    name: conntrack
+    state: latest
+
+- name: Create config directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - /etc/kubernetes
+    - /etc/kubernetes/kubelet
+    - /etc/kubernetes/kube-proxy
+
+- name: Copy CA certificates
+  copy:
+    src: "{{ k8s_pki_dir }}/k8s-ca.crt"
+    dest: /etc/kubernetes/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy kubelet config file
+  template:
+    src: etc/kubernetes/kubelet/kubelet-config.yaml
+    dest: /etc/kubernetes/kubelet/kubelet-config.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy kube proxy
+  template:
+    src: etc/kubernetes/kube-proxy/kube-proxy-config.yaml
+    dest: /etc/kubernetes/kube-proxy/kube-proxy-config.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy certificates and kubeconfig files to node 1
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - src: "{{ k8s_pki_dir }}/k8s-node-1.crt"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ k8s_pki_dir }}/k8s-node-1.key"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ kubeconfig_dir }}/k8s-node-1.kubeconfig"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ kubeconfig_dir }}/kube-proxy.kubeconfig"
+      dest: "/etc/kubernetes/kube-proxy/"
+  when: inventory_hostname == 'k8s-node-1'
+
+- name: Copy certificates and kubeconfig files to node 2
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - src: "{{ k8s_pki_dir }}/k8s-node-2.crt"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ k8s_pki_dir }}/k8s-node-2.key"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ kubeconfig_dir }}/k8s-node-2.kubeconfig"
+      dest: "/etc/kubernetes/kubelet/"
+    - src: "{{ kubeconfig_dir }}/kube-proxy.kubeconfig"
+      dest: "/etc/kubernetes/kube-proxy/"
+  when: inventory_hostname == 'k8s-node-2'
+
+- name: Copy config file for kubelet
+  template:
+    src: "lib/systemd/system/kubelet.service.j2"
+    dest: "/lib/systemd/system/kubelet.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart kubelet
+
+- name: Copy config file for kube-proxy
+  template:
+    src: "lib/systemd/system/kube-proxy.service.j2"
+    dest: "/lib/systemd/system/kube-proxy.service"
+    owner: root
+    group: root
+    mode: 0664
+  notify:
+    - restart kube-proxy
+
+- meta: flush_handlers

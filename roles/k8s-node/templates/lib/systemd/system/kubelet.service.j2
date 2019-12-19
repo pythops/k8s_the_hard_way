@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://kubernetes.io/docs
+
+[Service]
+ExecStart=/usr/local/bin/kubelet \
+  --container-runtime=docker \
+  --config=/etc/kubernetes/kubelet/kubelet-config.yaml \
+  --network-plugin=cni \
+  --image-pull-progress-deadline=2m \
+  --kubeconfig=/etc/kubernetes/kubelet/{{ inventory_hostname }}.kubeconfig \
+  --node-ip={{ ansible_host }} \
+  --register-node=true \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
