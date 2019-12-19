@@ -1,0 +1,24 @@
+---
+- name: Generate kube proxy private key
+  openssl_privatekey:
+    path: '{{ k8s_pki_dir }}/kube-proxy.key'
+
+- name: Generate kube proxy csr
+  openssl_csr:
+    path: "{{ k8s_pki_dir }}/kube-proxy.csr"
+    privatekey_path: '{{ k8s_pki_dir }}/kube-proxy.key'
+    common_name: "system:kube-proxy"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+    key_usage_critical: true
+    extended_key_usage: clientAuth
+    extended_key_usage_critical: true
+
+- name: Generate kube proxy certificate
+  openssl_certificate:
+    path: "{{ k8s_pki_dir }}/kube-proxy.crt"
+    csr_path: "{{ k8s_pki_dir }}/kube-proxy.csr"
+    ownca_path: '{{ k8s_pki_dir }}/k8s-ca.crt'
+    ownca_privatekey_path: '{{ k8s_pki_dir }}/k8s-ca.key'
+    provider: ownca

@@ -43,3 +43,15 @@
   include: admin.yaml
   tags:
     - admin
+
+- name: kubelet
+  include: kubelet.yaml
+  tags:
+    - node
+    - kubelet
+
+- name: kube-proxy
+  include: kube-proxy.yaml
+  tags:
+    - node
+    - kube-proxy
