@@ -1,4 +1,12 @@
 ---
+- name: Add nodes IPs to /etc/hosts
+  blockinfile:
+    path: /etc/hosts
+    block: |
+       {{ hostvars[item]['ansible_host'] }}   {{ item }}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+  loop: "{{ groups['node'] }}"
+
 - name: Copy k8s binaries
   copy:
     src: "{{ item }}"
