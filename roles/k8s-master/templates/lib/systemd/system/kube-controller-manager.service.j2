@@ -14,6 +14,7 @@ ExecStart=/usr/local/bin/kube-controller-manager \
   --cluster-name=kubernetes \
   --cluster-signing-cert-file=/etc/kubernetes/k8s-ca.crt \
   --cluster-signing-key-file=/etc/kubernetes/k8s-ca.key \
+  --feature-gates="TTLAfterFinished=true" \
   --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
   --leader-elect=true \
   --root-ca-file=/etc/kubernetes/k8s-ca.crt \
