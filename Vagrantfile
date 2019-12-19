@@ -45,6 +45,22 @@ Vagrant.configure("2") do |config|
 	end
   end
 
+  config.vm.define "node1" do |node1|
+        node1.vm.hostname = "k8s-node-1"
+        node1.vm.network "private_network", ip: "10.0.0.110"
+        node1.vm.provider "virtualbox" do |vb|
+                vb.name = "k8s-node-1"
+        end
+  end
+
+  config.vm.define "node2" do |node2|
+        node2.vm.hostname = "k8s-node-2"
+        node2.vm.network "private_network", ip: "10.0.0.111"
+        node2.vm.provider "virtualbox" do |vb|
+                vb.name = "k8s-node-2"
+        end
+  end
+
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "ssh.yaml"
   end
