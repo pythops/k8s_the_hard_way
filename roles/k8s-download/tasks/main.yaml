@@ -16,3 +16,7 @@
       dest: "{{ bin_dir }}/kube-controller-manager"
     - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-scheduler"
       dest: "{{ bin_dir }}/kube-scheduler"
+    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kubelet"
+      dest: "{{ bin_dir }}/kubelet"
+    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-proxy"
+      dest: "{{ bin_dir }}/kube-proxy"
