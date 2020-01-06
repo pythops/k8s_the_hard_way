@@ -67,10 +67,18 @@
     group: root
     mode: 0644
 
-- name: Copy kube scheduler kubeconfig
+- name: Copy kube-scheduler kubeconfig
   copy:
     src: "{{ kubeconfig_dir }}/kube-scheduler.kubeconfig"
     dest: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy kube-scheduller config file
+  template:
+    src: etc/kubernetes/kube-scheduler-config.yaml
+    dest: /etc/kubernetes/kube-scheduler-config.yaml
     owner: root
     group: root
     mode: 0644

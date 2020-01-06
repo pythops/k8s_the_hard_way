@@ -6,8 +6,7 @@ Documentation=https://kubernetes.io/docs
 
 [Service]
 ExecStart=/usr/local/bin/kube-scheduler \
-  --leader-elect=true \
-  --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
+  --config=/etc/kubernetes/kube-scheduler-config.yaml \
   --v=2
 Restart=on-failure
 RestartSec=5
