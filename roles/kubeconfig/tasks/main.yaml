@@ -15,10 +15,10 @@
         - cluster:
             certificate-authority-data: {{ lookup('file', '{{ k8s_pki_dir }}/k8s-ca.crt') | b64encode }}
             server: https://127.0.0.1:6443
-          name: k8s-the-hard-way
+          name: {{ cluster_name }}
       contexts:
         - context:
-            cluster: k8s-the-hard-way
+            cluster: {{ cluster_name }}
             user: default-controller-manager
           name: default
       current-context: default
@@ -41,10 +41,10 @@
         - cluster:
             certificate-authority-data: {{ lookup('file', '{{ k8s_pki_dir }}/k8s-ca.crt') | b64encode }}
             server: https://127.0.0.1:6443
-          name: k8s-the-hard-way
+          name: {{ cluster_name }}
       contexts:
         - context:
-            cluster: k8s-the-hard-way
+            cluster: {{ cluster_name }}
             user: default-manager
           name: default
       current-context: default
@@ -67,10 +67,10 @@
         - cluster:
             certificate-authority-data: {{ lookup('file', '{{ k8s_pki_dir }}/k8s-ca.crt') | b64encode }}
             server: https://{{ hostvars['loadbalancer']['ansible_host'] }}:6443
-          name: k8s-the-hard-way
+          name: {{ cluster_name }}
       contexts:
         - context:
-            cluster: k8s-the-hard-way
+            cluster: {{ cluster_name }}
             user: default-admin
           name: default
       current-context: default
@@ -93,10 +93,10 @@
         - cluster:
             certificate-authority-data: {{ lookup('file', '{{ k8s_pki_dir }}/k8s-ca.crt') | b64encode }}
             server: https://{{ hostvars['loadbalancer']['ansible_host'] }}:6443
-          name: k8s-the-hard-way
+          name: {{ cluster_name }}
       contexts:
         - context:
-            cluster: k8s-the-hard-way
+            cluster: {{ cluster_name }}
             user: system:node:{{ item }}
           name: default
       current-context: default
@@ -124,7 +124,7 @@
           name: {{ cluster_name }}
       contexts:
       - context:
-          cluster: k8s-the-hard-way
+          cluster: {{ cluster_name }}
           user: kube-proxy
         name: default
       current-context: default
