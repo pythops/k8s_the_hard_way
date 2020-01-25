@@ -4,6 +4,8 @@
     remote_src: yes
     src: https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz
     dest: /usr/local/bin/
+    owner: root
+    group: root
     exclude:
       - Documentation
       - README-etcdctl.md
