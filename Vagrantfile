@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
  	lb.vm.network "private_network", ip: "10.0.0.100"
         lb.vm.provider "virtualbox" do |vb|
 		vb.name = "k8s-loadbalancer"
-		vb.customize ["modifyvm", :id, "--memory", "256"]
+		vb.customize ["modifyvm", :id, "--memory", "512"]
 	end
   end
 
