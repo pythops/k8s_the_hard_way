@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "ubuntu/focal64"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.synced_folder ".", "/vagrant", disabled: true
- 
+
   config.vm.define "lb" do |lb|
   	lb.vm.hostname = "loadbalancer"
  	lb.vm.network "private_network", ip: "10.0.0.100"
@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
 		vb.customize ["modifyvm", :id, "--memory", "256"]
 	end
   end
- 
+
   config.vm.define "master1" do |master1|
   	master1.vm.hostname = "k8s-master-1"
   	master1.vm.network "private_network", ip: "10.0.0.101"
