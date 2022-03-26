@@ -1,7 +1,7 @@
 ---
 - name: Create binary directory
   file:
-    path: '{{ bin_dir }}'
+    path: "{{ bin_dir }}"
     state: directory
 
 - name: Download k8s binaries
@@ -10,13 +10,13 @@
     dest: "{{ item.dest }}"
     mode: 0664
   loop:
-    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-apiserver"
+    - url: "https://dl.k8s.io/{{ k8s_version }}/bin/linux/amd64/kube-apiserver"
       dest: "{{ bin_dir }}/kube-apiserver"
-    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-controller-manager"
+    - url: "https://dl.k8s.io/{{ k8s_version }}/bin/linux/amd64/kube-controller-manager"
       dest: "{{ bin_dir }}/kube-controller-manager"
-    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-scheduler"
+    - url: "https://dl.k8s.io/{{ k8s_version }}/bin/linux/amd64/kube-scheduler"
       dest: "{{ bin_dir }}/kube-scheduler"
-    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kubelet"
+    - url: "https://dl.k8s.io/{{ k8s_version }}/bin/linux/amd64/kubelet"
       dest: "{{ bin_dir }}/kubelet"
-    - url: "https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/kube-proxy"
+    - url: "https://dl.k8s.io/{{ k8s_version }}/bin/linux/amd64/kube-proxy"
       dest: "{{ bin_dir }}/kube-proxy"
