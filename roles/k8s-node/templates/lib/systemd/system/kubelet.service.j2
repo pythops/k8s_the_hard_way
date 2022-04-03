@@ -6,7 +6,8 @@ Documentation=https://kubernetes.io/docs
 
 [Service]
 ExecStart=/usr/local/bin/kubelet \
-  --container-runtime=docker \
+  --container-runtime=remote \
+  --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \
   --config=/etc/kubernetes/kubelet/kubelet-config.yaml \
   --network-plugin=cni \
   --image-pull-progress-deadline=2m \
