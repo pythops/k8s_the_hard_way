@@ -1,12 +1,6 @@
 ---
-- name: Create Canal psp
-  k8s:
-    definition: "{{ lookup('template', 'canal-psp.yaml') }}"
-    kubeconfig: "{{ kubeconfig_dir }}/admin.kubeconfig"
-    apply: true
-
 - name: Deploy Canal
-  k8s:
+  kubernetes.core.k8s:
     definition: "{{ lookup('template', 'canal.yaml') }}"
     kubeconfig: "{{ kubeconfig_dir }}/admin.kubeconfig"
     apply: true
