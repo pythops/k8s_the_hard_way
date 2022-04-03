@@ -1,0 +1,18 @@
+- name: Install containerd
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/cri-containerd-{{ containerd_version }}-linux-amd64.tar.gz
+    dest: /
+    owner: root
+    group: root
+    extra_opts: "--no-overwrite-dir"
+  notify:
+    - reload systemd daemon
+    - enable containerd
+
+- name: Start containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+
+- meta: flush_handlers
