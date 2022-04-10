@@ -8,13 +8,12 @@ Documentation=https://kubernetes.io/docs
 User=kube-controller-manager
 Group=kubernetes
 ExecStart=/usr/local/bin/kube-controller-manager \
-  --address=0.0.0.0 \
+  --bind-address=0.0.0.0 \
   --cluster-cidr={{ pod_cidr }} \
   --allocate-node-cidrs=true \
   --cluster-name={{ cluster_name }} \
   --cluster-signing-cert-file=/etc/kubernetes/k8s-ca.crt \
   --cluster-signing-key-file=/etc/kubernetes/k8s-ca.key \
-  --feature-gates="TTLAfterFinished=true" \
   --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
   --leader-elect=true \
   --root-ca-file=/etc/kubernetes/k8s-ca.crt \

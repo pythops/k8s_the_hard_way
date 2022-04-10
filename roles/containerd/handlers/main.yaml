@@ -1,0 +1,8 @@
+- name: reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: enable containerd
+  ansible.builtin.systemd:
+    name: containerd
+    enabled: yes
